@@ -10,7 +10,6 @@ let output;
     const myDataBase = await client.db('IssueTracker-QA-freeCodeCamp').collection('func_test');
     output =(await myDataBase.findOne({}, {sort:{$natural:-1}}));
  
-    
   });
   
 
@@ -26,6 +25,9 @@ suite('Functional Tests', function() {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
                 assert.equal(res.body.created_by,'melanie aqui');
+                assert.isBoolean(res.body.open);
+                assert.isNotEmpty(res.body.created_on);
+                assert.isNotEmpty(res.body.updated_on);
                 assert.equal(res.body.issue_text,'track issues');
                 assert.equal(res.body.issue_title,'tracker');
                 assert.equal(res.body.assigned_to,'Joe');
@@ -33,7 +35,7 @@ suite('Functional Tests', function() {
     
                 done();
               });
-        });
+        }).timeout(10000);
         test('Only Required', function (done) {
             chai
               .request(server)
@@ -46,6 +48,9 @@ suite('Functional Tests', function() {
                 assert.equal(res.body.created_by,'melanie aqui');
                 assert.equal(res.body.issue_text,'dude so many bugs');
                 assert.equal(res.body.issue_title,'tracker bug');
+                assert.isBoolean(res.body.open);
+                assert.isNotEmpty(res.body.created_on);
+                assert.isNotEmpty(res.body.updated_on);
     
                 done();
               });
@@ -75,6 +80,7 @@ suite('Functional Tests', function() {
               .end(async function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
+                assert.isNotEmpty(res.body)
                 done();
               });
         });
@@ -82,10 +88,12 @@ suite('Functional Tests', function() {
             chai
               .request(server)
               .keepOpen()
-              .get('/api/issues/func_test/?assigned_to=joe/')
+              .get('/api/issues/func_test/?assigned_to=joe')
               .end(async function (err, res) {
                 assert.equal(res.status, 200);
-                assert.equal(res.type,'application/json','Response should be json', );
+                assert.equal(res.type,'application/json','Response should be json');
+                assert.equal(res.body[0].assigned_to,'joe')
+                assert.equal(res.body[(res.body).length-1].assigned_to,'joe')
                 done();
               });
         });
@@ -93,11 +101,19 @@ suite('Functional Tests', function() {
             chai
               .request(server)
               .keepOpen()
-              .get('/api/issues/func_test/?assigned_to=joe&open=true&issue_title=tracker/')
+              .get('/api/issues/func_test/?assigned_to=joe&open=true&issue_title=tracker')
               .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
-               // assert.equal(res.body.assigned_to,'joe')
+
+                assert.equal(res.body[0].assigned_to,'joe')
+                assert.equal(res.body[(res.body).length-1].assigned_to,'joe')
+
+                assert.isTrue(res.body[0].open)
+                assert.isTrue(res.body[(res.body).length-1].open)
+
+                assert.equal(res.body[0].issue_title,'tracker')
+                assert.equal(res.body[(res.body).length-1].issue_title,'tracker')
                 done();
               })
         }).timeout(10000);
