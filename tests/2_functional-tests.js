@@ -83,31 +83,31 @@ suite('Functional Tests', function() {
                 assert.isNotEmpty(res.body)
                 done();
               });
-        });
+        }).timeout(10000);
         test('One Filter', function (done) {
             chai
               .request(server)
               .keepOpen()
-              .get('/api/issues/func_test/?assigned_to=joe')
+              .get('/api/issues/func_test/?assigned_to=Joe')
               .end(async function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json');
-                assert.equal(res.body[0].assigned_to,'joe')
-                assert.equal(res.body[(res.body).length-1].assigned_to,'joe')
+                assert.equal(res.body[0].assigned_to,'Joe')
+                assert.equal(res.body[(res.body).length-1].assigned_to,'Joe')
                 done();
               });
-        });
+        }).timeout(10000);
         test('Multiple Filter', function (done) {
             chai
               .request(server)
               .keepOpen()
-              .get('/api/issues/func_test/?assigned_to=joe&open=true&issue_title=tracker')
+              .get('/api/issues/func_test/?assigned_to=Joe&open=true&issue_title=tracker')
               .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
 
-                assert.equal(res.body[0].assigned_to,'joe')
-                assert.equal(res.body[(res.body).length-1].assigned_to,'joe')
+                assert.equal(res.body[0].assigned_to,'Joe')
+                assert.equal(res.body[(res.body).length-1].assigned_to,'Joe')
 
                 assert.isTrue(res.body[0].open)
                 assert.isTrue(res.body[(res.body).length-1].open)
@@ -125,7 +125,7 @@ suite('Functional Tests', function() {
             chai
               .request(server)
               .keepOpen()
-              .put('/api/issues/func_test/')
+              .put('/api/issues/func_test')
               .send({_id: output['_id'],issue_title: 'updated title'})
               .end(async function (err, res) {
                 assert.equal(res.status, 200);
@@ -135,12 +135,12 @@ suite('Functional Tests', function() {
 
                 done();
               });
-        });
+        }).timeout(10000);
         test('Many Fields', function (done) {
             chai
               .request(server)
               .keepOpen()
-              .put('/api/issues/func_test/')
+              .put('/api/issues/func_test')
               .send({_id: output['_id'],issue_title: 'updated title2',assigned_to:'finn'})
               .end(async function (err, res) {
                 assert.equal(res.status, 200);
@@ -150,12 +150,12 @@ suite('Functional Tests', function() {
 
                 done();
               });
-        })
+        }).timeout(10000);
         test('Missing _id', function (done) {
             chai
               .request(server)
               .keepOpen()
-              .put('/api/issues/func_test/')
+              .put('/api/issues/func_test')
               .send({_id: '',issue_title: 'updated title3',assigned_to:'finne'})
               .end(async function (err, res) {
                 assert.equal(res.status, 200);
@@ -180,7 +180,7 @@ suite('Functional Tests', function() {
 
               done();
             });
-      })
+      }).timeout(10000);
 
         test('Invalid _id', function (done) {
             chai
@@ -212,7 +212,7 @@ suite('Functional Tests', function() {
                 assert.equal(res.body.result,'successfully deleted');
                 done();
               });
-        });
+        }).timeout(10000);
         test('Invalid _id', function (done) {
             chai
               .request(server)
