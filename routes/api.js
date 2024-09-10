@@ -16,10 +16,25 @@ module.exports = function (app) {
         const myDataBase = await client.db('IssueTracker-QA-freeCodeCamp').collection(project);
         
         var data;
-        data = await myDataBase.find().toArray();
-        if (Object.keys(req.query).length==0){
-          return res.json(data)
+        var query={};
+        let q;
+        //data = await myDataBase.find().toArray();
+      
+        {
+          let key;
+          for(key in req.query){
+            q =req.query[key];
+            if (key=='open')
+              q= Boolean(q)
+            if (key == '_id')
+              q= new ObjectId(q)
+
+            query[key]=q
+
+          }
+          data = await myDataBase.find(query).toArray()
         }
+        /*
         else{
          data = data.filter(function (item) {
           return Object.keys(req.query).every(function (key) {
@@ -31,7 +46,7 @@ module.exports = function (app) {
               return item[key] == q;
           });
         });
-        }
+        }*/
 
         return res.json(data)
 
