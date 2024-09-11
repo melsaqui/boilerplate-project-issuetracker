@@ -5,11 +5,12 @@ const server = require('../server');
 require('dotenv').config();
 const myDB = require('../connection');
 chai.use(chaiHttp);
-let output;
+var output;
   myDB(async client => {
     const myDataBase = await client.db('IssueTracker-QA-freeCodeCamp').collection('func_test');
     output =(await myDataBase.findOne({}, {sort:{$natural:-1}}));
- 
+    //console.log(output)
+
   });
   
 
@@ -21,7 +22,7 @@ suite('Functional Tests', function() {
               .keepOpen()
               .post('/api/issues/func_test/')
               .send({'created_by':'melanie aqui', 'issue_text':'track issues','issue_title':'tracker','assigned_to':'Joe', 'status_text':'dev'})
-              .end(async function (err, res) {
+              .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
                 assert.equal(res.body.created_by,'melanie aqui');
@@ -42,7 +43,7 @@ suite('Functional Tests', function() {
               .keepOpen()
               .post('/api/issues/func_test/')
               .send({'created_by':'melanie aqui', 'issue_text':'dude so many bugs','issue_title':'tracker bug'})
-              .end(async function (err, res) {
+              .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
                 assert.equal(res.body.created_by,'melanie aqui');
@@ -105,7 +106,7 @@ suite('Functional Tests', function() {
               .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
-
+                //console.log(res.body[0])
                 assert.equal(res.body[0].assigned_to,'Joe')
                 assert.equal(res.body[(res.body).length-1].assigned_to,'Joe')
 
@@ -200,7 +201,7 @@ suite('Functional Tests', function() {
     suite('DELETE Requests',function(){
         test('Delete an issue', function (done) {
         
-          console.log();
+          //console.log();
             chai
               .request(server)
               .keepOpen()

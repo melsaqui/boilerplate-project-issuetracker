@@ -27,7 +27,7 @@ module.exports = function (app) {
             if (key=='open')
               q= Boolean(q)
             if (key == '_id')
-              q= new ObjectId(q)
+              q= new BSON.ObjectId(q)
 
             query[key]=q
 
