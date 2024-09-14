@@ -34,20 +34,6 @@ module.exports = function (app) {
           }
           data = await myDataBase.find(query).toArray()
         }
-        /*
-        else{
-         data = data.filter(function (item) {
-          return Object.keys(req.query).every(function (key) {
-            let q =req.query[key];
-            if (key=='open')
-              q= Boolean(req.query[key])
-            if (key == '_id')
-              q= new BSON.ObjectId(req.query[key])
-              return item[key] == q;
-          });
-        });
-        }*/
-
         return res.json(data)
 
       })
