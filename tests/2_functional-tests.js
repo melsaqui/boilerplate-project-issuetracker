@@ -62,7 +62,7 @@ suite('Functional Tests', function() {
               .keepOpen()
               .post('/api/issues/func_test/')
               .send({'created_by':'me'})
-              .end(async function (err, res) {
+              .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
                 assert.equal(res.body.error,'required field(s) missing');
@@ -143,7 +143,7 @@ suite('Functional Tests', function() {
               .keepOpen()
               .put('/api/issues/func_test')
               .send({_id: output['_id'],issue_title: 'updated title2',assigned_to:'finn'})
-              .end(async function (err, res) {
+              .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
                 assert.equal(res.body.result,'successfully updated',"result should be a success");
@@ -158,7 +158,7 @@ suite('Functional Tests', function() {
               .keepOpen()
               .put('/api/issues/func_test')
               .send({_id: '',issue_title: 'updated title3',assigned_to:'finne'})
-              .end(async function (err, res) {
+              .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type,'application/json','Response should be json', );
                 assert.equal(res.body.error,'missing _id');
@@ -173,7 +173,7 @@ suite('Functional Tests', function() {
             .keepOpen()
             .put('/api/issues/func_test/')
             .send({_id: output['_id']})
-            .end(async function (err, res) {
+            .end(function (err, res) {
               assert.equal(res.status, 200);
               assert.equal(res.type,'application/json','Response should be json', );
               assert.equal(res.body.error,'no update field(s) sent');
@@ -201,7 +201,6 @@ suite('Functional Tests', function() {
     suite('DELETE Requests',function(){
         test('Delete an issue', function (done) {
         
-          //console.log();
             chai
               .request(server)
               .keepOpen()
