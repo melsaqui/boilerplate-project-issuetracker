@@ -9,16 +9,17 @@ async function main(callback) {
 
     try {
         // Connect to the MongoDB cluster
-        await client.connect();
+         client.connect();
 
         // Make the appropriate DB calls
-        await callback(client);
+         callback(client);
 
     } catch (e) {
         // Catch any errors
         console.error(e);
         throw new Error('Unable to Connect to Database')
     }
+
 }
 
 module.exports = main;

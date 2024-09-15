@@ -7,39 +7,45 @@ const BSON = require('bson');
 
 module.exports = function (app) {
   //const date = new Date();
-
+  myDB(async client => {
   app.route('/api/issues/:project')
   
-    .get(function (req, res){
-      let project = req.params.project;
-      myDB(async client => {
-        const myDataBase = await client.db('IssueTracker-QA-freeCodeCamp').collection(project);
-        
-        var data;
-        var query={};
-        let q;
-        //data = await myDataBase.find().toArray();
-      
-        {
-          let key;
-          for(key in req.query){
-            q =req.query[key];
-            if (key=='open')
-              q= Boolean(q)
-            if (key == '_id')
-              q= new BSON.ObjectId(q)
-
-            query[key]=q
-
+    .get(async function (req, res){
+      try{
+        let project = req.params.project;
+          const myDataBase = await client.db('IssueTracker-QA-freeCodeCamp').collection(project);
+          
+          var data;
+          var query={};
+          let q;
+          if (Object.keys(req.query).length==0){
+            
+           res.json(await myDataBase.find().toArray())
           }
-          data = await myDataBase.find(query).toArray()
-        }
-        return res.json(data)
-
-      })
+         else {
+            let key;
+            for(key in req.query){
+              q =req.query[key];
+              if (key=='open')
+                q= Boolean(q)
+              if (key == '_id')
+                q= new BSON.ObjectId(q)
+  
+              query[key]=q
+  
+            }
+            data = await myDataBase.find(query).toArray()
+          
+          }
+          return res.json(data)
+  
+      }catch(e){
+        console.log(e)
+      }
+     
     })
     
-    .post(function (req, res){
+    .post(async function (req, res){
       let project = req.params.project;
       let date = new Date().toJSON();
  
@@ -49,8 +55,8 @@ module.exports = function (app) {
         
       }
       else{
-        myDB(async client => {
-          const myDataBase = await client.db('IssueTracker-QA-freeCodeCamp').collection(project);
+        try{
+          const myDataBase =  await client.db('IssueTracker-QA-freeCodeCamp').collection(project);
           var assto;
           var stattext;
           if (req.body.assigned_to==null || req.body.assigned_to==undefined ||req.body.assigned_to=='')
@@ -62,7 +68,7 @@ module.exports = function (app) {
           else
             stattext=req.body.status_text;
 
-          myDataBase.insertOne({
+          let val=  await myDataBase.insertOne({
             issue_title: req.body.issue_title,
             issue_text: req.body.issue_text,
             created_on: date,
@@ -74,14 +80,22 @@ module.exports = function (app) {
 
                
           });
-          return res.json ( await myDataBase.findOne({}, {sort:{$natural:-1}}))
         
-        })
+
+          if (val['acknowledged'] && (val['_id']!=undefined || val!=null)){
+            var data = await myDataBase.findOne({_id: val['insertedId']})
+           
+          }
+          return res.json (data)
+        }catch (e){
+          console.log(e)
+        }
+
       }
      
     })
     
-    .put(function (req, res){
+    .put(async function (req, res){
       let project = req.params.project;      
       try{
         if (req.body._id=='' || req.body._id==undefined || req.body._id==null) {
@@ -93,7 +107,6 @@ module.exports = function (app) {
         else{
           let id= new BSON.ObjectId(req.body._id)
 
-          myDB(async client => {
             const myDataBase = await client.db('IssueTracker-QA-freeCodeCamp').collection(project);
               let queries={}
               let date = new Date().toJSON();
@@ -120,10 +133,8 @@ module.exports = function (app) {
                       queries['assigned_to'] = req.body.assigned_to
                     if(req.body.issue_text!='')
                       queries['status_text '] =req.body.status_text 
-                    //console.log(queries)
                     var upd= await myDataBase.updateOne({_id:id}, {$set:queries});
                       
-                    //console.log(upd)
                     if(upd['modifiedCount']>0 && upd['acknowledged'])
                       return res.json({result: 'successfully updated', '_id': req.body._id})
                     else
@@ -136,16 +147,14 @@ module.exports = function (app) {
                 return res.json({ error: "could not update", '_id' :req.body._id })
               }      
             
-          })
         }
       }catch (e){  
         return res.json({ error: "could not update", '_id' :req.body._id })
         
       }
-      //return res.json({ error: "could not update", '_id' :req.body._id })
     })
     
-    .delete(function (req, res){
+    .delete(async function (req, res){
       let project = req.params.project;
       try{
         if (req.body._id=='' || req.body._id==undefined || req.body._id==null) 
@@ -156,23 +165,20 @@ module.exports = function (app) {
         }
         else{
           let id=   new BSON.ObjectId(req.body._id)
-          myDB(async client => {
             const myDataBase = await client.db('IssueTracker-QA-freeCodeCamp').collection(project);
   
             var del= await myDataBase.deleteOne({_id:id});
-            //console.log(del)
             if(del!=undefined&&del['acknowledged'] && del['deletedCount'] >0  )
               return res.json({ 'result': 'successfully deleted', '_id': id })
   
             else{
               return res.json({'error': 'could not delete', '_id': id })
             }
-          })
         } 
       }catch{
         return res.json({'error': 'could not delete', '_id': id })
       }
       
   });
-    
+});
 };
